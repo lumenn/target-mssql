@@ -334,6 +334,23 @@ class mssqlConnector(SQLConnector):
         Returns:
             The SQL type.
         """
+        if self._jsonschema_type_check(jsonschema_type, ("integer",)):
+            return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.BIGINT())
+
+        if self._jsonschema_type_check(jsonschema_type, ("number",)):
+            if self.config.get("prefer_float_over_numeric", False):
+                return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.FLOAT())
+            return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.NUMERIC(38, 16))
+
+        if self._jsonschema_type_check(jsonschema_type, ("boolean",)):
+            return cast(sqlalchemy.types.TypeEngine, mssql.VARCHAR(1))
+
+        if self._jsonschema_type_check(jsonschema_type, ("object",)):
+            return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.VARCHAR())
+
+        if self._jsonschema_type_check(jsonschema_type, ("array",)):
+            return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.JSON())
+
         if self._jsonschema_type_check(jsonschema_type, ("string",)):
             datelike_type = get_datelike_property_type(jsonschema_type)
             if datelike_type:
@@ -354,23 +371,6 @@ class mssqlConnector(SQLConnector):
             return cast(
                 sqlalchemy.types.TypeEngine, sqlalchemy.types.VARCHAR(maxlength)
             )
-
-        if self._jsonschema_type_check(jsonschema_type, ("integer",)):
-            return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.BIGINT())
-
-        if self._jsonschema_type_check(jsonschema_type, ("number",)):
-            if self.config.get("prefer_float_over_numeric", False):
-                return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.FLOAT())
-            return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.NUMERIC(38, 16))
-
-        if self._jsonschema_type_check(jsonschema_type, ("boolean",)):
-            return cast(sqlalchemy.types.TypeEngine, mssql.VARCHAR(1))
-
-        if self._jsonschema_type_check(jsonschema_type, ("object",)):
-            return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.VARCHAR())
-
-        if self._jsonschema_type_check(jsonschema_type, ("array",)):
-            return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.JSON())
 
         return cast(sqlalchemy.types.TypeEngine, sqlalchemy.types.VARCHAR())
 
