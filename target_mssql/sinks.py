@@ -288,6 +288,8 @@ class mssqlSink(SQLSink):
     def snakecase(self, name):
         name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
         name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+        # remove double underscores
+        name = re.sub(r"\_+", "_", name)
         return name.lower()
 
     def conform_name(self, name: str, object_type: Optional[str] = None) -> str:
@@ -305,7 +307,5 @@ class mssqlSink(SQLSink):
         name = re.sub(r"[^a-zA-Z0-9_\-\.\s]", "", name)
         # convert to snakecase
         name = self.snakecase(name)
-        # remove double underscores
-        name = re.sub(r"\_+", "_", name)
         # replace leading digit
         return replace_leading_digit(name)
