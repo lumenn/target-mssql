@@ -305,5 +305,7 @@ class mssqlSink(SQLSink):
         name = re.sub(r"[^a-zA-Z0-9_\-\.\s]", "", name)
         # convert to snakecase
         name = self.snakecase(name)
+        # remove double underscores
+        name = re.sub(r"\_+", "_", name)
         # replace leading digit
         return replace_leading_digit(name)
