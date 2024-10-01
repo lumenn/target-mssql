@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional
 
 import sqlalchemy
 from singer_sdk.connectors.sql import SQLConnector
-from singer_sdk.helpers._conformers import replace_leading_digit
+from singer_sdk.helpers._conformers import replace_leading_digit, snakecase
 from singer_sdk.sinks.sql import SQLSink
 from sqlalchemy import Column
 
@@ -285,13 +285,6 @@ class mssqlSink(SQLSink):
 
         return db_name, schema_name, table_name
 
-    def snakecase(self, name):
-        name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
-        name = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
-        # remove double underscores
-        name = re.sub(r"\_+", "_", name)
-        return name.lower()
-
     def conform_name(self, name: str, object_type: Optional[str] = None) -> str:
         """Conform a stream property name to one suitable for the target system.
         Transforms names to snake case by default, applicable to most common DBMSs'.
@@ -306,6 +299,6 @@ class mssqlSink(SQLSink):
         # strip non-alphanumeric characters, keeping - . _ and spaces
         name = re.sub(r"[^a-zA-Z0-9_\-\.\s]", "", name)
         # convert to snakecase
-        name = self.snakecase(name)
+        name = snakecase(name)
         # replace leading digit
         return replace_leading_digit(name)
